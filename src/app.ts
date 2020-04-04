@@ -48,6 +48,39 @@ function autobind(_:any, _2:string, descriptor: PropertyDescriptor) {
   return adjustedDescriptor;
 }
 
+// ProjectList class
+class ProjectList {
+  // elemento que se va a renderear dentro del elemento host
+  templateElement: HTMLTemplateElement;
+  element: HTMLElement;
+  hostElement: HTMLDivElement;
+  
+  constructor(private type: 'active' | 'finished') {
+    // cuando se obtienen los elementos del dom (por su id) no van a ser null y se los castea al tipo correspondiente
+    this.templateElement = document.getElementById('project-list')! as HTMLTemplateElement;
+    this.hostElement = document.getElementById('app')! as HTMLDivElement;
+
+    // crea una copia del nodo para luego ser insertado dentro del host (div)
+    const importedNode = document.importNode(this.templateElement.content, true);
+    // como el primer elemento siguiente del template es un form, se lo obtiene y se castea
+    this.element = importedNode.firstElementChild as HTMLElement;
+    this.element.id = `${this.type}-projects`;
+    this.attach();
+    this.renderContent();
+  }
+
+  private renderContent() {
+    const listId = `${this.type}-projects-lists`;
+    this.element.querySelector('ul')!.id = listId;
+    this.element.querySelector('h2')!.textContent = this.type.toUpperCase() + 'PROJECTS';
+  }
+
+  private attach() {
+    this.hostElement.insertAdjacentElement('beforeend', this.element);
+  }
+}
+
+
 //ProjectInput class
 class ProjectInput {
   // elemento que se va a renderear dentro del elemento host
@@ -60,8 +93,6 @@ class ProjectInput {
   peopleInputElement: HTMLInputElement;
 
   constructor() {
-    //this.submitHandler = this.submitHandler.bind(this);
-
     // cuando se obtienen los elementos del dom (por su id) no van a ser null y se los castea al tipo correspondiente
     this.templateElement = document.getElementById('project-input')! as HTMLTemplateElement;
     this.hostElement = document.getElementById('app')! as HTMLDivElement;
@@ -140,3 +171,5 @@ class ProjectInput {
 }
 
 const projInput = new ProjectInput();
+const activeProjList = new ProjectList('active');
+const finishedProjList = new ProjectList('finished');

@@ -64,8 +64,6 @@ class ProjectState extends State<Project>{
     return this.instance;
   }
 
-  
-
   // metodo para agregar un nuevo proyecto al array
   addProject(title:string, description:string, numOfPeople:number) {
     const newProject = new Project(
@@ -78,6 +76,19 @@ class ProjectState extends State<Project>{
     this.projects.push(newProject);
     // cada vez que se agrega un nuevo proyecto, se disparan todos los listeners almacenados
     // con una copia del estado global de la app (en este caso el array de proyectos)
+    this.updateListeners();
+  }
+
+  moveProject(projectId: string, newStatus: ProjectStatus) {
+    const project = this.projects.find(proj => proj.id === projectId);
+
+    if (project && project.status !== newStatus) {
+      project.status = newStatus;
+      this.updateListeners();
+    }
+  }
+
+  updateListeners() {
     for (const listenerFn of this.listeners) {
       listenerFn(this.projects.slice());
     }
@@ -267,7 +278,8 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> implements Drag
   
   @autobind
   dropHandler(event: DragEvent) {
-    console.log(event.dataTransfer!.getData('text/plain'));
+    const projId = event.dataTransfer!.getData('text/plain');
+    projectSate.moveProject(projId, this.type === 'active' ? ProjectStatus.Active : ProjectStatus.Finished);
   }
 
   @autobind

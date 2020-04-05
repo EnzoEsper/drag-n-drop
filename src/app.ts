@@ -1,9 +1,28 @@
+// Project type
+enum ProjectStatus {Active, Finished}
+
+class Project {
+  constructor(
+    public id: string,
+    public title: string,
+    public description: string,
+    public people: number,
+    public status: ProjectStatus
+  ) {
+
+  }
+}
+
+
 /////////////////////////////////
 // PROJECT STATE MANAGEMENT CLASS
 /////////////////////////////////
+
+type Listener = (items: Project[]) => void; 
+
 class ProjectState {
-  private listeners: any[] = [];
-  private projects: any[] = [];
+  private listeners: Listener[] = [];
+  private projects: Project[] = [];
   private static instance: ProjectState;
 
   private constructor() {
@@ -20,18 +39,19 @@ class ProjectState {
     return this.instance;
   }
 
-  addListener(listenerFn: Function) {
+  addListener(listenerFn: Listener) {
     this.listeners.push(listenerFn);
   }
 
   // metodo para agregar un nuevo proyecto al array
   addProject(title:string, description:string, numOfPeople:number) {
-    const newProject = {
-      id: Math.random().toString(),
-      title: title,
-      description: description,
-      people: numOfPeople
-    };
+    const newProject = new Project(
+      Math.random().toString(),
+      title,
+      description,
+      numOfPeople,
+      ProjectStatus.Active
+    );
     this.projects.push(newProject);
     // cada vez que se agrega un nuevo proyecto, se disparan todos los listeners almacenados
     // con una copia del estado global de la app (en este caso el array de proyectos)
@@ -103,7 +123,7 @@ class ProjectList {
   element: HTMLElement;
   hostElement: HTMLDivElement;
 
-  assignedProjects: any[];
+  assignedProjects: Project[];
   
   constructor(private type: 'active' | 'finished') {
     // se obtienen el elemento template del dom (por su id) 
@@ -128,7 +148,7 @@ class ProjectList {
     // # en este caso cada vez que se agregue un nuevo proyecto, se va a sobreescribir el array de assignedProjects
     // con la copia del array de todos los proyectos del state y se van a renderear
     // # la variable this ya esta ligada a esta clase por la arrow function
-    projectSate.addListener((projects: any[]) => {
+    projectSate.addListener((projects: Project[]) => {
       this.assignedProjects = projects;
       // se renderean cada uno de los proyectos pasados como parametros
       this.renderProjects();

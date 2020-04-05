@@ -1,3 +1,21 @@
+// DRAG N DROP INTERFACES
+// idea: agregar la interfaz Draggable a las clases que rendereen un elemento que pueda ser arrastrado
+interface Draggable {
+   dragStartHandler(event: DragEvent): void;
+   dragEndHandler(event: DragEvent): void;
+}
+
+// idea: elementos de la interfaz donde se puedan soltar los elementos que se arrastren
+interface DragTarget {
+  // p indicar al browser que el elemento sobre el que se esta arrastrando algo, es un elemento sobre
+  // el cual se puede soltar algo -> permite el drop
+  dragOverHandler(event: DragEvent): void;
+  // p reaccionar al momento en el que se suelte algun elemento -> maneja el drop
+  dropHandler(event: DragEvent): void;
+  // puede ser util para dar feedback al usuario en la ui 
+  dragLeaveHandler(event: DragEvent): void;
+}
+
 // PROJECT TYPE
 enum ProjectStatus {Active, Finished}
 
@@ -167,7 +185,7 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
 /////////////////////
 // PROJECT ITEM CLASS
 /////////////////////
-class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> implements Draggable {
   
   private project: Project;
 
@@ -188,7 +206,20 @@ class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
     this.renderContent();
   }
 
-  configure() {}
+  @autobind
+  dragStartHandler(event: DragEvent) {
+    console.log(event);
+  }
+
+  @autobind
+  dragEndHandler(_: DragEvent) {
+    console.log("DragEnd");
+  }
+
+  configure() {
+    this.element.addEventListener('dragstart', this.dragStartHandler);
+    this.element.addEventListener('dragend', this.dragEndHandler);
+  }
 
   renderContent() {
     this.element.querySelector('h2')!.textContent = this.project.title;

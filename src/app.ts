@@ -149,7 +149,16 @@ class ProjectList {
     // con la copia del array de todos los proyectos del state y se van a renderear
     // # la variable this ya esta ligada a esta clase por la arrow function
     projectSate.addListener((projects: Project[]) => {
-      this.assignedProjects = projects;
+
+      // se filtran los proyectos dependiendo de si estan activos (por defecto) o terminados
+      const relevantProjects = projects.filter(proj => {
+        if (this.type === 'active') {
+          return proj.status === ProjectStatus.Active;
+        }
+        return proj.status === ProjectStatus.Finished;
+      })
+
+      this.assignedProjects = relevantProjects;
       // se renderean cada uno de los proyectos pasados como parametros
       this.renderProjects();
     })
@@ -165,6 +174,10 @@ class ProjectList {
     // como esto se ejecuta cada vez que se agrega un proyecto al state, se puede obtener el ul al que
     // se le agrego el id anteriormente
     const listEl = document.getElementById(`${this.type}-projects-lists`)! as HTMLUListElement;
+
+    // se limpia el innerHTML de la lista para evitar que se rendereen elementos duplicados
+    listEl.innerHTML = "";
+
     // por cada proyecto en el array assignedProjects se crea un li con el titulo de cada uno y se lo agrega
     // al ul targeteado por el id
     for (const projItem of this.assignedProjects) {

@@ -164,6 +164,31 @@ abstract class Component<T extends HTMLElement, U extends HTMLElement> {
   abstract renderContent(): void;
 }
 
+/////////////////////
+// PROJECT ITEM CLASS
+/////////////////////
+class ProjectItem extends Component<HTMLUListElement, HTMLLIElement> {
+  
+  private project: Project;
+  
+  constructor(hostId: string, project: Project) {
+    super("single-project", hostId, false, project.id);
+
+    this.project = project;
+
+    this.configure();
+    this.renderContent();
+  }
+
+  configure() {}
+
+  renderContent() {
+    this.element.querySelector('h2')!.textContent = this.project.title;
+    this.element.querySelector('h3')!.textContent = this.project.people.toString();
+    this.element.querySelector('p')!.textContent = this.project.description;
+  }
+}
+
 
 /////////////////////
 // PROJECT LIST CLASS
@@ -227,9 +252,11 @@ class ProjectList extends Component<HTMLDivElement, HTMLElement> {
     // por cada proyecto en el array assignedProjects se crea un li con el titulo de cada uno y se lo agrega
     // al ul targeteado por el id
     for (const projItem of this.assignedProjects) {
-      const listItem = document.createElement('li');
+      // se instancia un nuevo item y se renderea con los campos correspondientes
+      new ProjectItem(this.element.querySelector('ul')!.id, projItem)
+      /* const listItem = document.createElement('li');
       listItem.textContent = projItem.title;
-      listEl.appendChild(listItem); 
+      listEl.appendChild(listItem);  */
     }
   }
 }
